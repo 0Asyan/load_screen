@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Screen</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #1e1e24 no-repeat center center fixed; 
+            background-size: cover;
+            transition: background-image 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        function GameDetails( servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language ) {
+            
+            var bgPath = "background/" + mapname + ".png";
+            
+            document.body.style.backgroundImage = "url('" + bgPath + "')";
+        }
+    </script>
+</body>
+</html>
