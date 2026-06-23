@@ -80,26 +80,60 @@
     <script>
         let totalFiles = 0;
         let neededFiles = 0;
+        let currentVisualPercentage = 0;
+        let isFakingProgress = false;
 
         window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language) {
             var bgPath = "background/" + mapname + ".png";
             document.body.style.backgroundImage = "url('" + bgPath + "')";
         };
 
-        function updateProgress() {
-            if (totalFiles <= 0) return;
-            
-            let downloaded = totalFiles - neededFiles;
-            let percentage = (downloaded / totalFiles) * 100;
-            
+        function drawVisuals(percentage) {
             percentage = Math.max(0, Math.min(100, percentage));
-
             document.getElementById('progressFill').style.width = percentage + '%';
             document.getElementById('baby').style.left = percentage + '%';
         }
 
+        function fakeRemainingProgress() {
+            if (!isFakingProgress || currentVisualPercentage >= 100) return;
+
+            currentVisualPercentage += (100 - currentVisualPercentage) * 0.1;
+            
+            if (currentVisualPercentage > 99.8) {
+                currentVisualPercentage = 100;
+                isFakingProgress = false;
+            }
+
+            drawVisuals(currentVisualPercentage);
+            setTimeout(fakeRemainingProgress, 300);
+        }
+
+        function updateProgress() {
+            if (isFakingProgress) return;
+
+            if (totalFiles <= 0) {
+                currentVisualPercentage = 0;
+                drawVisuals(0);
+                return;
+            }
+            
+            let downloaded = totalFiles - neededFiles;
+            let realPercentage = (downloaded / totalFiles) * 100;
+
+            if (neededFiles === 0 && totalFiles > 0) {
+                isFakingProgress = true;
+                currentVisualPercentage = 85; 
+                fakeRemainingProgress();
+                return;
+            }
+
+            currentVisualPercentage = Math.min(realPercentage, 85);
+            drawVisuals(currentVisualPercentage);
+        }
+
         window.SetFilesTotal = function(total) {
             totalFiles = total;
+            isFakingProgress = false; 
             updateProgress();
         };
 
@@ -110,6 +144,12 @@
 
         window.SetStatusChanged = function(status) {
             document.getElementById('status-text').innerHTML = status;
+
+            if (status.includes("Fully connected") && isFakingProgress) {
+                currentVisualPercentage = 100;
+                isFakingProgress = false;
+                drawVisuals(100);
+            }
         };
 
         window.DownloadingFile = function(fileName) {
