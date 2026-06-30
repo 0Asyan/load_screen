@@ -18,7 +18,7 @@
 
         #progress-container {
             position: absolute; 
-            bottom: 70px; 
+            bottom: 110px; 
             left: 50px;
             right: 50px;
             height: 30px; 
@@ -32,12 +32,22 @@
             top: -50px;
             left: 0%;
             width: 60px;
-            transition: left 0.1s linear;
+            transition: left 0.5s linear;
             z-index: 10;
         }
 
         #progress-bar {
-            width: 0%; height: 100%; background: white; transition: width 0.1s;
+            width: 0%; height: 100%; background: white; transition: width 0.5s;
+        }
+
+        #status-text {
+            position: absolute;
+            bottom: 150px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -47,6 +57,8 @@
         <img src="images/logo.png" alt="Logo" class="logo">
         <div class="title">ORPHAN’S CITY</div>
     </div>
+
+    <div id="status-text">Подключение..</div>
 
     <div id="progress-container">
         <img src="images/baby.png" id="baby" alt="baby">
@@ -63,15 +75,33 @@
 
         function DownloadingFile(fileName) {
             downloadedFiles++;
-            var percent = (downloadedFiles / totalFiles) * 100;
-            document.getElementById('progress-bar').style.width = percent + "%";
-            document.getElementById('baby').style.left = "calc(" + percent + "% - 20px)";
+            if (totalFiles > 0) {
+                var percent = (downloadedFiles / totalFiles) * 100;
+                document.getElementById('progress-bar').style.width = percent + "%";
+                document.getElementById('baby').style.left = "calc(" + percent + "% - 20px)";
+            }
         }
 
-        function GameDetails( servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language ) {
+        function SetStatusChanged(status) {
+            document.getElementById('status-text').innerText = status;
+        }
+
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language) {
             var bgPath = "background/" + mapname + ".png";
             document.body.style.backgroundImage = "url('" + bgPath + "')";
         }
+    </script>
+
+    <script>
+        var mockTotal = 100;
+        SetFilesTotal(mockTotal);
+        var interval = setInterval(function() {
+            if (downloadedFiles < mockTotal) {
+                DownloadingFile("test_file");
+            } else {
+                clearInterval(interval);
+            }
+        }, 100); 
     </script>
 </body>
 </html>
