@@ -9,6 +9,8 @@
         .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease; }
         .slide.active { opacity: 1; }
 
+        .vignette { position: absolute; width: 110%; height: 110%; top: -5%; left: -5%; background-image: url("vignette.png"); background-size: cover; background-position: center; animation: zoom 10s linear infinite; z-index: 1;}
+
         .bg { position: absolute; width: 110%; height: 110%; top: -5%; left: -5%; background-size: cover; background-position: center; animation: zoom 10s linear infinite; z-index: 1;}
         
         .char { position: absolute; height: 110%; width: 50%; bottom: 0; background-size: contain; background-position: bottom center; background-repeat: no-repeat; z-index: 2;}
@@ -40,18 +42,28 @@
         const slidesData = [
             { folder: 'ruslan', quote: 'Никогда не доверяй тому, у кого арбалет за спиной..', pos: 'move-right', quotePos: 'top: 15%; right: 10%;' },
             { folder: 'artem', quote: 'Город меняет всех, но не меня.', pos: 'move-zoom', quotePos: 'bottom: 20%; left: 5%;' },
-            { folder: 'pidor', quote: 'Хомисайд это не про рдм... (Asyan)', pos: 'move-zoom', quotePos: 'bottom: 20%; left: 5%;' },
+            { folder: 'pidor', quote: 'Хомисайд это не про рдм...', pos: 'move-zoom', quotePos: 'bottom: 20%; left: 5%;' },
             { folder: 'hih', quote: 'На что я надеюсь в этом раунде..', pos: 'move-left', quotePos: 'top: 15%; right: 10%;' },
+            { folder: 'black', quote: 'Я никогда не любил этот сервер..', pos: 'move-zoom', quotePos: 'bottom: 40%; left: 5%;' },
+            { folder: 'white', quote: 'Почему именно меня он посчитал трейтором..', pos: 'move-right', quotePos: 'top: 15%; right: 10%;' },
+            { folder: 'vip', quote: 'POV: Я прописавши !viptest в чате , получив админку на сервере.', pos: 'move-right', quotePos: 'top: 25%; right: 10%;' },
         ];
         // по умному
         let queue = [];
         const app = document.getElementById('app');
         const audio = document.getElementById('bgMusic');
-        audio.volume = 0.3;
+        audio.volume = 0.2;
+
+        window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+            if (audio.paused) {
+                audio.play().catch(e => console.log("Browser error sound.."));
+            }
+        };
 
         document.body.addEventListener('click', () => {
             if (audio.paused) audio.play();
         }, { once: true });
+
 
         function getNextSlide() {
             if (queue.length === 0) {
@@ -73,6 +85,7 @@
             newSlide.innerHTML = `
                 <div class="bg" style="background-image: url('${path}/bg.png')"></div>
                 <div class="char ${s.pos}" style="background-image: url('${path}/char.png')"></div>
+                <div class="vignette"></div> <
                 <div class="quote" style="${s.quotePos}">${s.quote}</div>
             `;
             
