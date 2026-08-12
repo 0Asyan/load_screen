@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <title>Orphan`s City Life 2018</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; cursor: pointer; }
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('fonts/main.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #000; 
+            color: #fff; 
+            font-family: 'CustomFont', 'Segoe UI', sans-serif; 
+            cursor: pointer; 
+        }
         
         .slide { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease; }
         .slide.active { opacity: 1; }
@@ -15,7 +32,22 @@
         
         .char { position: absolute; height: 110%; width: 50%; bottom: 0; background-size: contain; background-position: bottom center; background-repeat: no-repeat; z-index: 2;}
         
-        .quote { position: absolute; width: 400px; font-size: 28px; font-weight: bold; text-shadow: 3px 3px 6px #000; padding: 20px; z-index: 3;}
+        .quote { position: absolute; width: 400px; font-size: 28px; font-weight: bold; text-shadow: 3px 3px 6px #000; padding: 20px; z-index: 5;}
+
+        /* Логотип в левом верхнем углу */
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 656px;
+            height: 256px;
+            background-image: url("logo.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: top left;
+            z-index: 10;
+            pointer-events: none;
+        }
 
         @keyframes zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
         
@@ -33,23 +65,24 @@
 
     <audio id="bgMusic" loop>
         <source src="music/1.mp3" type="audio/mpeg">
-        
     </audio>
+
+    <!-- Фиксированные элементы UI -->
+    <div class="logo"></div>
 
     <div id="app"></div>
 
     <script>
         const slidesData = [
-            { folder: 'ruslan', quote: 'Никогда не доверяй тому, у кого арбалет за спиной..', pos: 'move-right', quotePos: 'top: 15%; right: 10%;' },
             { folder: 'artem', quote: 'Город меняет всех, но не меня.', pos: 'move-zoom', quotePos: 'bottom: 20%; left: 5%;' },
-            { folder: 'pidor', quote: 'Хомисайд это не про рдм...', pos: 'move-zoom', quotePos: 'bottom: 20%; left: 5%;' },
             { folder: 'hih', quote: 'На что я надеюсь в этом раунде..', pos: 'move-left', quotePos: 'top: 15%; right: 10%;' },
             { folder: 'black', quote: 'Я никогда не любил этот сервер..', pos: 'move-zoom', quotePos: 'bottom: 40%; left: 5%;' },
             { folder: 'white', quote: 'Почему именно меня он посчитал трейтором..', pos: 'move-right', quotePos: 'top: 15%; right: 10%;' },
             { folder: 'vip', quote: 'POV: Я прописавши !viptest в чате , получив админку на сервере.', pos: 'move-right', quotePos: 'top: 25%; right: 10%;' },
         ];
-        // по умному
+
         let queue = [];
+        let typingInterval = null;
         const app = document.getElementById('app');
         const audio = document.getElementById('bgMusic');
         audio.volume = 0.2;
@@ -64,7 +97,6 @@
             if (audio.paused) audio.play();
         }, { once: true });
 
-
         function getNextSlide() {
             if (queue.length === 0) {
                 queue = [...slidesData]; 
@@ -76,6 +108,21 @@
             return queue.pop();
         }
 
+        function typeText(element, text, speed = 50) {
+            if (typingInterval) clearInterval(typingInterval);
+            element.textContent = '';
+            let index = 0;
+            
+            typingInterval = setInterval(() => {
+                if (index < text.length) {
+                    element.textContent += text.charAt(index);
+                    index++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, speed);
+        }
+
         function showSlide() {
             const s = getNextSlide();
             const path = `lore/${s.folder}`;
@@ -85,15 +132,18 @@
             newSlide.innerHTML = `
                 <div class="bg" style="background-image: url('${path}/bg.png')"></div>
                 <div class="char ${s.pos}" style="background-image: url('${path}/char.png')"></div>
-                <div class="vignette"></div> <
-                <div class="quote" style="${s.quotePos}">${s.quote}</div>
+                <div class="vignette"></div>
+                <div class="quote" style="${s.quotePos}"></div>
             `;
             
             app.innerHTML = ''; 
             app.appendChild(newSlide);
             
+            const quoteElem = newSlide.querySelector('.quote');
+
             setTimeout(() => {
                 newSlide.classList.add('active');
+                typeText(quoteElem, s.quote, 50);
             }, 50); 
             
             setTimeout(() => {
